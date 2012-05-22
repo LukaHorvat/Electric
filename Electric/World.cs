@@ -29,9 +29,9 @@ namespace Electric
 			AddChild(gameLayer);
 			AddChild(uiLayer);
 
-			performanceLabel = new Label("", new System.Drawing.Font("Courier New", 8), System.Drawing.Brushes.White, new Rectangle(0, 0, 300, 300));
+			performanceLabel = new Label("", new System.Drawing.Font("Courier New", 8), System.Drawing.Brushes.White, new Rectangle(0, 0, 150, 150));
 			uiLayer.AddChild(performanceLabel);
-			performanceLabel.X = 500;
+			performanceLabel.X = 650;
 			performanceLabel.IgnoresCamera = true;
 		}
 
@@ -39,6 +39,8 @@ namespace Electric
 		{
 			this.grid = grid;
 			gameLayer.AddChild(grid);
+
+			new GridPiece(PieceType.Relay);
 		}
 
 		public override void UpdateSelf()
@@ -48,10 +50,10 @@ namespace Electric
 			if (Utility.GetCountdown("performanceRefresh") == 0)
 			{
 				performanceLabel.Text =
-					"Update time: " + Firefly.UpdateTime + "\n" +
-					"Render time: " + Firefly.RenderTime + "\n" +
-					"Total time: " + Firefly.TotalTime + "\n" +
-					"Framerate (60 cap): " + (int)(1000 / Firefly.TotalTime);
+					"Update time:\t" + Firefly.UpdateTime + "\n" +
+					"Render time:\t" + Firefly.RenderTime + "\n" +
+					"Total time:\t" + Firefly.TotalTime + "\n" +
+					"Framerate:\t" + (int)(1000 / Firefly.TotalTime);
 				Utility.StartCountdown("performanceRefresh", 20);
 			}
 		}
