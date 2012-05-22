@@ -119,6 +119,7 @@
     <Compile Include="FireflyGL\Utility\Utility.cs" />
     <Compile Include="FireflyGL\Window.cs" />
     <Compile Include="Grid.cs" />
+    <Compile Include="GridPiece.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="World.cs" />
