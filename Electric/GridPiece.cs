@@ -15,12 +15,14 @@ namespace Electric
 		DownwardRelay
 	}
 
-	class GridPiece : TexturedRectangle
+	abstract class GridPiece : TexturedRectangle
 	{
+		public PieceType Type;
+
 		public GridPiece(PieceType type)
 			: base(textures[type])
 		{
-
+			Type = type;
 		}
 
 		private static Dictionary<PieceType, Texture> textures;

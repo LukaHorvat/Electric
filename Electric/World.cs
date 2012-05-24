@@ -39,8 +39,6 @@ namespace Electric
 		{
 			this.grid = grid;
 			gameLayer.AddChild(grid);
-
-			new GridPiece(PieceType.Relay);
 		}
 
 		public override void UpdateSelf()

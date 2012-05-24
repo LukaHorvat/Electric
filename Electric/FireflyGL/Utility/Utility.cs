@@ -174,5 +174,41 @@ namespace FireflyGL.Utility
 				return second - (-first % second);
 			}
 		}
+
+		public static void InitializeList<T1>(List<T1> list, int elements)
+		{
+			if (list == null) list = new List<T1>(elements);
+			for (int i = 0; i < elements; ++i) list.Add(default(T1));
+		}
+
+		public static void InitializeList<T1>(List<List<T1>> list, int width, int height)
+		{
+			if (list == null) list = new List<List<T1>>(width);
+			for (int i = 0; i < width; ++i)
+			{
+				list.Add(new List<T1>(height));
+				for (int j = 0; j < height; ++j)
+				{
+					list[i].Add(default(T1));
+				}
+			}
+		}
+
+		public static void InitializeList<T1>(List<List<List<T1>>> list, int width, int height, int depth)
+		{
+			if (list == null) list = new List<List<List<T1>>>(width);
+			for (int i = 0; i < width; ++i)
+			{
+				list.Add(new List<List<T1>>(height));
+				for (int j = 0; j < height; ++j)
+				{
+					list[i].Add(new List<T1>(depth));
+					for (int k = 0; k < depth; ++k)
+					{
+						list[i][j].Add(default(T1));
+					}
+				}
+			}
+		}
 	}
 }

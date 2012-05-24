@@ -30,12 +30,17 @@ namespace FireflyGL
 #version 110
 
 uniform float alpha;
+uniform float tintR;
+uniform float tintG;
+uniform float tintB;
+uniform float tintA;
 
 varying vec4 frag_color;
 
 void main () {
 
-	gl_FragColor = vec4(frag_color.rgb, frag_color.a * alpha);
+	vec3 tint = vec3(tintR, tintG, tintB);
+	gl_FragColor = vec4(frag_color.rgb * (1.0 - tintA) + tint * tintA, frag_color.a * alpha);
 }";
 			}
 

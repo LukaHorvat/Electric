@@ -141,6 +141,10 @@ namespace FireflyGL
 			DefaultShapeProgram.AddUniformLocation("projection_matrix");
 			DefaultShapeProgram.AddUniformLocation("camera_matrix");
 			DefaultShapeProgram.AddUniformLocation("alpha");
+			DefaultShapeProgram.AddUniformLocation("tintR");
+			DefaultShapeProgram.AddUniformLocation("tintG");
+			DefaultShapeProgram.AddUniformLocation("tintB");
+			DefaultShapeProgram.AddUniformLocation("tintA");
 			DefaultShapeProgram.AddAttribLocation("vertex_coord");
 			DefaultShapeProgram.AddAttribLocation("vertex_color");
 
@@ -152,6 +156,10 @@ namespace FireflyGL
 			DefaultTextureProgram.AddUniformLocation("camera_matrix");
 			DefaultTextureProgram.AddUniformLocation("texture");
 			DefaultTextureProgram.AddUniformLocation("alpha");
+			DefaultTextureProgram.AddUniformLocation("tintR");
+			DefaultTextureProgram.AddUniformLocation("tintG");
+			DefaultTextureProgram.AddUniformLocation("tintB");
+			DefaultTextureProgram.AddUniformLocation("tintA");
 			DefaultTextureProgram.AddAttribLocation("vertex_coord");
 			DefaultTextureProgram.AddAttribLocation("vertex_texcoord");
 

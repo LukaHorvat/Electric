@@ -45,7 +45,7 @@ namespace FireflyGL
 			set
 			{
 				parent = value;
-				UpdateMatrices();
+				UpdateProperties();
 			}
 		}
 		protected Matrix4 scaleMatrix, rotationMatrix, translationMatrix, modelMatrix, parentMatrix; //Camera and window matrices are stored in separate classes because they are common to all display objects
@@ -53,54 +53,79 @@ namespace FireflyGL
 
 		protected LinkedList<DisplayObject> children = new LinkedList<DisplayObject>();
 
-		float scaleX = 1, scaleY = 1, x, y, rotation, alpha = 1;
+		float scaleX = 1, scaleY = 1, x, y, rotation, alpha = 1, tintR = 0, tintG = 0, tintB = 0, tintA = 0;
+		protected float realAlpha = 1, realTintR = 0, realTintG = 0, realTintB = 0, realTintA = 0;
 		protected bool ignoresCamera;
 
 		public bool IgnoresCamera
 		{
 			get { return ignoresCamera; }
-			set { ignoresCamera = value; UpdateMatrices(); }
+			set { ignoresCamera = value; UpdateProperties(); }
 		}
 
 		public float ScaleX
 		{
 			get { return scaleX; }
-			set { scaleX = value; UpdateMatrices(); }
+			set { scaleX = value; UpdateProperties(); }
 		}
 
 		public float ScaleY
 		{
 			get { return scaleY; }
-			set { scaleY = value; UpdateMatrices(); }
+			set { scaleY = value; UpdateProperties(); }
 		}
 
 		public float Scale
 		{
-			set { scaleX = value; scaleY = value; UpdateMatrices(); }
+			set { scaleX = value; scaleY = value; UpdateProperties(); }
 		}
 
 		public float X
 		{
 			get { return x; }
-			set { x = value; UpdateMatrices(); }
+			set { x = value; UpdateProperties(); }
 		}
 
 		public float Y
 		{
 			get { return y; }
-			set { y = value; UpdateMatrices(); }
+			set { y = value; UpdateProperties(); }
 		}
 
 		public float Rotation
 		{
 			get { return rotation; }
-			set { rotation = value; Geometry.MakeAngle(ref rotation); UpdateMatrices(); }
+			set { rotation = value; Geometry.MakeAngle(ref rotation); UpdateProperties(); }
 		}
 
 		public float Alpha
 		{
 			get { return alpha; }
-			set { alpha = value; }
+			set { alpha = value; UpdateProperties(); }
+		}
+
+		public float TintAlpha
+		{
+			get { return tintA; }
+			set { tintA = value; UpdateProperties(); }
+		}
+
+		public float TintRed
+		{
+			get { return tintR; }
+			set { tintR = value; UpdateProperties(); }
+		}
+
+		public float TintGreen
+		{
+			get { return tintG; }
+			set { tintG = value; UpdateProperties(); }
+		}
+
+		public float TintBlue
+		{
+			get { return tintB; }
+			set { tintB = value; UpdateProperties(); }
 		}
 
 		protected bool visible = true;
@@ -119,10 +144,10 @@ namespace FireflyGL
 
 		public DisplayObject()
 		{
-			UpdateMatrices();
+			UpdateProperties();
 		}
 
-		protected void UpdateMatrices()
+		protected void UpdateProperties()
 		{
 			scaleMatrix = Matrix4.Scale(scaleX, scaleY, 1); //0,0 = scaleX, 1,1 = scaleY
 			rotationMatrix = Matrix4.CreateRotationZ(rotation);
@@ -130,13 +155,39 @@ namespace FireflyGL
 			if (Parent != null)
 			{
 				parentMatrix = Parent.modelMatrix;
+				realAlpha = Parent.realAlpha * alpha;
+				realTintA = Parent.realTintA + tintA - Parent.realTintA * tintA;
+				if (realTintA == 0)
+				{
+					realTintR = 0;
+					realTintG = 0;
+					realTintB = 0;
+				}
+				else
+				{
+					var p = Parent.realTintA / realTintA; //No real meaning, just so I don't repeat myself
+					var c = (1 - Parent.realTintA) * tintA / realTintA; //Same
+
+					realTintR = p * Parent.realTintR + c * tintR;
+					realTintG = p * Parent.realTintG + c * tintG;
+					realTintB = p * Parent.realTintB + c * tintB;
+				}
+
 				if (ignoresCamera == false && Parent.ignoresCamera) ignoresCamera = true;
 			}
-			else parentMatrix = Matrix4.Identity;
+			else
+			{
+				parentMatrix = Matrix4.Identity;
+				realAlpha = alpha;
+				realTintA = tintA;
+				realTintB = tintB;
+				realTintG = tintG;
+				realTintR = tintR;
+			}
 
 			parentlessModelMatrix = scaleMatrix * rotationMatrix * translationMatrix;
 			modelMatrix = parentlessModelMatrix * parentMatrix;
-			foreach (var child in children) child.UpdateMatrices();
+			foreach (var child in children) child.UpdateProperties();
 		}
 
 		public virtual void Render()
@@ -219,12 +270,14 @@ namespace FireflyGL
 		{
 			children.AddLast(child);
 			child.Parent = this;
+			child.UpdateProperties();
 		}
 
 		public void RemoveChild(DisplayObject child)
 		{
 			children.Remove(child);
 			child.Parent = null;
+			child.UpdateProperties();
 		}
 
 		public virtual bool IntersectsGlobalPoint(Point point)

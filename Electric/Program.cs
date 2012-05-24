@@ -10,14 +10,14 @@ namespace Electric
 	{
 		static void Main(string[] args)
 		{
-			Firefly.Initialize(800, 500, "Electric", OnLoad, true);
+			Firefly.Initialize(800, 500, "Electric", OnLoad, false);
 		}
 
 		static void OnLoad(Stage stage)
 		{
-			var world = new World();
-			world.AddGrid(new Grid(20, 20));
-			stage.AddChild(world);
+			//var world = new World();
+			//world.AddGrid(new Grid(20, 20));
+			//stage.AddChild(world);
 		}
 	}
 }
