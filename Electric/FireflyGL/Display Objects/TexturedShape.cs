@@ -102,7 +102,11 @@ namespace FireflyGL
 			if (!IgnoresCamera) ((Uniform)program.Locations["camera_matrix"]).LoadMatrix(Camera.CurrentCamera.Matrix);
 			else ((Uniform)program.Locations["camera_matrix"]).LoadMatrix(Matrix4.Identity);
 			((Uniform)program.Locations["model_matrix"]).LoadMatrix(modelMatrix);
-			((Uniform)program.Locations["alpha"]).LoadFloat(Alpha);
+			((Uniform)program.Locations["alpha"]).LoadFloat(realAlpha);
+			((Uniform)program.Locations["tintR"]).LoadFloat(realTintR);
+			((Uniform)program.Locations["tintG"]).LoadFloat(realTintG);
+			((Uniform)program.Locations["tintB"]).LoadFloat(realTintB);
+			((Uniform)program.Locations["tintA"]).LoadFloat(realTintA);
 
 			GL.EnableVertexAttribArray(program.Locations["vertex_coord"].Location);
 			GL.EnableVertexAttribArray(program.Locations["vertex_texcoord"].Location);

@@ -37,8 +37,8 @@ uniform float tintA;
 
 varying vec4 frag_color;
 
-void main () {
-
+void main () 
+{
 	vec3 tint = vec3(tintR, tintG, tintB);
 	gl_FragColor = vec4(frag_color.rgb * (1.0 - tintA) + tint * tintA, frag_color.a * alpha);
 }";
@@ -63,8 +63,8 @@ uniform mat4 camera_matrix;
 
 varying vec4 frag_color;
 
-void main () {
-
+void main () 
+{
 	frag_color = vertex_color;
 	gl_Position = projection_matrix * camera_matrix * model_matrix * vertex_coord;
 } ";
@@ -80,14 +80,19 @@ void main () {
 #version 110
 
 uniform float alpha;
+uniform float tintR;
+uniform float tintG;
+uniform float tintB;
+uniform float tintA;
 uniform sampler2D texture;
 
 varying vec2 frag_texcoord;
 
-void main () {
-	
+void main () 
+{
+	vec3 tint = vec3(tintR, tintG, tintB);
 	vec4 tempColor = texture2D(texture, frag_texcoord - floor( frag_texcoord ) );
-	gl_FragColor = vec4(tempColor.rgb, tempColor.a * alpha);
+	gl_FragColor = vec4(tempColor.rgb * (1.0 - tintA) + tint * tintA, tempColor.a * alpha);
 }";
 			}
 			if (File.Exists("shaders/defTextureVert.vert.c"))
@@ -130,13 +135,18 @@ void main () {
 #version 150
 
 uniform float alpha;
+uniform float tintR;
+uniform float tintG;
+uniform float tintB;
+uniform float tintA;
 
 in vec4 frag_color;
 out vec4 FragColor;
 
-void main () {
-
-	FragColor = vec4(frag_color.rgb, frag_color.a * alpha);
+void main () 
+{
+	vec3 tint = vec3(tintR, tintG, tintB);
+	FragColor = vec4(frag_color.rgb * (1.0 - tintA) + tint * tintA, frag_color.a * alpha);
 }";
 			}
 
@@ -176,15 +186,20 @@ void main () {
 #version 150
 
 uniform float alpha;
+uniform float tintR;
+uniform float tintG;
+uniform float tintB;
+uniform float tintA;
 uniform sampler2D texture;
 
 in vec2 frag_texcoord;
 out vec4 FragColor;
 
-void main () {
-	
+void main () 
+{
+	vec3 tint = vec3(tintR, tintG, tintB);
 	vec4 tempColor = texture2D(texture, frag_texcoord - floor( frag_texcoord ) );
-	FragColor = vec4(tempColor.rgb, tempColor.a * alpha);
+	FragColor = vec4(tempColor.rgb * (1.0 - tintA) + tint * tintA, tempColor.a * alpha);
 }";
 			}
 			if (File.Exists("shaders/defOGL4TextureVert.vert.c"))
