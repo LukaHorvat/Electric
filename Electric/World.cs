@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using FireflyGL;
 using FireflyGL.Utility;
+using Electric.GridPieces;
 
 namespace Electric
 {
@@ -39,6 +40,8 @@ namespace Electric
 		{
 			this.grid = grid;
 			gameLayer.AddChild(grid);
+
+			grid.AddPiece(new Battery(new ChargeColor(1, 0, 0)), 5, 5);
 		}
 
 		public override void UpdateSelf()

@@ -17,24 +17,64 @@ namespace Electric
 		private Shape background;
 		private List<List<GridPiece>> gridPieces;
 		private List<ChargeData> chargeLocations;
+		private List<ColoredShape> chargeMarkers;
+
+		private ColoredShape originalChargeMarker;
 
 		private bool isReset = true;
 
 		private int width { get { return gridPieces.Count; } }
 		private int height { get { return gridPieces[0].Count; } }
 
+		private Layer piecesLayer;
+		private Layer markerLayer;
+		private Layer effectsLayer;
+
 		public Grid(int width, int height)
 		{
+			originalChargeMarker = new ColoredShape();
+			originalChargeMarker.FilledPolygons.AppendMany(
+				new Polygon(false,
+				0, 0, 1, 1, 1, 0.7F,
+				SIZE, 0, 1, 1, 1, 0.7F,
+				SIZE - 5, 5, 1, 1, 1, 0,
+				5, 5, 1, 1, 1, 0),
+
+				new Polygon(false,
+				SIZE, 0, 1, 1, 1, 0.7F,
+				SIZE, SIZE, 1, 1, 1, 0.7F,
+				SIZE - 5, SIZE - 5, 1, 1, 1, 0,
+				SIZE - 5, 5, 1, 1, 1, 0),
+
+				new Polygon(false,
+				SIZE, SIZE, 1, 1, 1, 0.7F,
+				0, SIZE, 1, 1, 1, 0.7F,
+				5, SIZE - 5, 1, 1, 1, 0,
+				SIZE - 5, SIZE - 5, 1, 1, 1, 0),
+
+				new Polygon(false,
+				0, SIZE, 1, 1, 1, 0.7F,
+				0, 0, 1, 1, 1, 0.7F,
+				5, 5, 1, 1, 1, 0,
+				5, SIZE - 5, 1, 1, 1, 0));
+
+			originalChargeMarker.SetPolygons();
+
+			piecesLayer = new Layer();
+			markerLayer = new Layer();
+			effectsLayer = new Layer();
+
+			chargeMarkers = new List<ColoredShape>();
 			chargeLocations = new List<ChargeData>();
 			gridPieces = new List<List<GridPiece>>(width);
 			Utility.InitializeList<GridPiece>(gridPieces, width, height);
 
 			background = new ColoredShape();
-			AddChild(background);
 
 			var brush = new ColoredRectangle(0, 0, SIZE, SIZE, 0.2F, 0.2F, 0.2F, 1);
 			brush.AddOutline(0.7F, 0.7F, 0.7F, 1);
 
+			background.BeginMassUpdate();
 			for (int i = 0; i < width; ++i)
 			{
 				for (int j = 0; j < height; j++)
@@ -44,11 +84,20 @@ namespace Electric
 					brush.DrawToShapeGlobal(background);
 				}
 			}
+			background.EndMassUpdate();
+
+			AddChild(background);
+			AddChild(piecesLayer);
+			AddChild(markerLayer);
+			AddChild(effectsLayer);
 		}
 
 		public void AddPiece(GridPiece piece, int x, int y)
 		{
 			gridPieces[x][y] = piece;
+			piece.X = x * (SIZE + PADDING);
+			piece.Y = y * (SIZE + PADDING);
+			piecesLayer.AddChild(piece);
 			Reset();
 		}
 
@@ -65,6 +114,7 @@ namespace Electric
 			{
 				for (int j = 0; j < height; ++j)
 				{
+					if (gridPieces[i][j] == null) continue;
 					if (gridPieces[i][j].Type == PieceType.Battery)
 					{
 						//Add new charges where the batteries are. Each battery also carries color information.
@@ -74,6 +124,7 @@ namespace Electric
 					}
 				}
 			}
+			UpdateMarkers();
 
 			isReset = true;
 		}
@@ -107,12 +158,14 @@ namespace Electric
 				{
 					newCharges.Remove(last);
 					--i;
-					newCharges[i] = new ChargeData(last.Item1, last.Item2, last.Item3 + newCharges[i].Item3, -1, - 1);
+					newCharges[i] = new ChargeData(last.Item1, last.Item2, last.Item3 + newCharges[i].Item3, -1, -1);
 					last = newCharges[i];
 				}
 			}
 
 			chargeLocations = newCharges;
+
+			UpdateMarkers();
 
 			isReset = false;
 		}
@@ -135,6 +188,33 @@ namespace Electric
 			}
 
 			return list;
+		}
+
+		private void UpdateMarkers()
+		{
+			for (int i = 0; i < chargeLocations.Count; ++i)
+			{
+				if (chargeMarkers.Count == i)
+				{
+					chargeMarkers.Add((ColoredShape)originalChargeMarker.Clone());
+					markerLayer.AddChild(chargeMarkers[i]);
+				}
+				var marker = chargeMarkers[i];
+				marker.Active = true;
+				marker.X = chargeLocations[i].Item1 * (SIZE + PADDING);
+				marker.Y = chargeLocations[i].Item2 * (SIZE + PADDING);
+				marker.TintAlpha = 1;
+				marker.TintRed = chargeLocations[i].Item3.Red;
+				marker.TintGreen = chargeLocations[i].Item3.Green;
+				marker.TintBlue = chargeLocations[i].Item3.Blue;
+			}
+			if (chargeMarkers.Count > chargeLocations.Count)
+			{
+				for (int i = chargeLocations.Count; i < chargeMarkers.Count; ++i)
+				{
+					chargeMarkers[i].Active = false; ;
+				}
+			}
 		}
 	}
 }
