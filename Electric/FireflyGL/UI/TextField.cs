@@ -28,7 +28,7 @@ namespace FireflyGL
 		}
 		public event Action<TextField, string> OnChange;
 
-		public TextField(Font font, Brush textColor, int backgroundColor, float width, float height, Rectangle? wordWrap = null)
+		public TextField(Font font, Brush textColor, uint backgroundColor, float width, float height, Rectangle? wordWrap = null)
 		{
 			layer = new Layer();
 			AddChild(layer);
@@ -58,6 +58,11 @@ namespace FireflyGL
 			arrow.SetPolygons();
 			arrow.Visible = false;
 			AddChild(arrow);
+		}
+
+		public void Focus()
+		{
+			focused = true;
 		}
 
 		public override void UpdateSelf()

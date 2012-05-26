@@ -115,6 +115,7 @@
     <Compile Include="FireflyGL\UI\TextField.cs" />
     <Compile Include="FireflyGL\UI\TexturedButton.cs" />
     <Compile Include="FireflyGL\Utility\BidirectionalDictionary.cs" />
+    <Compile Include="FireflyGL\Utility\DebugConsole.cs" />
     <Compile Include="FireflyGL\Utility\ExtensionMethods.cs" />
     <Compile Include="FireflyGL\Utility\MutableTuple.cs" />
     <Compile Include="FireflyGL\Utility\Utility.cs" />
