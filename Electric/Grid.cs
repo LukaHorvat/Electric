@@ -9,7 +9,7 @@ using ChargeData = System.Tuple<int, int, Electric.ChargeColor, int, int>;
 
 namespace Electric
 {
-	class Grid : DisplayObject
+	public class Grid : DisplayObject
 	{
 		private const int SIZE = 30;
 		private const int PADDING = 5;

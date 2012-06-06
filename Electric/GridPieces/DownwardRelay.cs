@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Electric.GridPieces
 {
-	class DownwardRelay : GridPiece
+	public class DownwardRelay : GridPiece
 	{
 		public DownwardRelay()
 			: base(PieceType.DownwardRelay)

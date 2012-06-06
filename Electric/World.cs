@@ -8,7 +8,7 @@ using Electric.GridPieces;
 
 namespace Electric
 {
-	class World : DisplayObject
+	public class World : DisplayObject
 	{
 		public bool ShowPerformance
 		{
@@ -50,11 +50,13 @@ namespace Electric
 
 			if (Utility.GetCountdown("performanceRefresh") == 0)
 			{
+				/*
 				performanceLabel.Text =
 					"Update time:\t" + Firefly.UpdateTime + "\n" +
 					"Render time:\t" + Firefly.RenderTime + "\n" +
 					"Total time:\t" + Firefly.TotalTime + "\n" +
 					"Framerate:\t" + (int)(1000 / Firefly.TotalTime);
+				*/
 				Utility.StartCountdown("performanceRefresh", 20);
 			}
 		}

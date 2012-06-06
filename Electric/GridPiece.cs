@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Electric
 {
-	enum PieceType
+	public enum PieceType
 	{
 		Battery,
 		Relay,
@@ -15,7 +15,7 @@ namespace Electric
 		DownwardRelay
 	}
 
-	abstract class GridPiece : TexturedRectangle
+	public abstract class GridPiece : TexturedRectangle
 	{
 		public PieceType Type;
 

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Electric
 {
-	class ChargeColor
+	public class ChargeColor
 	{
 		public int Red, Green, Blue;
 

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Electric.GridPieces
 {
-	class Battery : GridPiece
+	public class Battery : GridPiece
 	{
 		public ChargeColor Color;
 
