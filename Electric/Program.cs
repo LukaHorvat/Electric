@@ -19,18 +19,18 @@ namespace Electric
 
 		static void OnLoad(Stage stage)
 		{
-			//var world = new World();
-			//world.AddGrid(new Grid(20, 20));
-			//stage.AddChild(world);
+			DebugConsole.CheckForNonPublicTypes();
 
-			rectangle = new ColoredRectangle(-50, -50, 100, 100, 0.7F, 0.1F, 0.3F, 0.9F);
-			stage.AddChild(rectangle);
+			var world = new World();
+			world.AddGrid(new Grid(20, 20));
+			stage.AddChild(world);
 
-			var console = new DebugConsole();
-			stage.AddChild(console);
-			console.ExposedReferences["rectangle"] = rectangle;
-			console.ExposedReferences["test"] = new Action(Test);
+			//rectangle = new ColoredRectangle(-50, -50, 100, 100, 0.7F, 0, 0, 1);
+			//stage.AddChild(rectangle);
 
+			//var console = new DebugConsole();
+			//console.ExposedReferences["rectangle"] = rectangle;
+			//stage.AddChild(console);
 		}
 
 		public static void Test()
