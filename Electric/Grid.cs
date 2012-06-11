@@ -9,7 +9,7 @@ using ChargeData = System.Tuple<int, int, Electric.ChargeColor, int, int>;
 
 namespace Electric
 {
-	public class Grid : DisplayObject
+	public partial class Grid : DisplayObject
 	{
 		private const int SIZE = 30;
 		private const int PADDING = 5;
@@ -32,64 +32,25 @@ namespace Electric
 
 		public Grid(int width, int height)
 		{
-			originalChargeMarker = new ColoredShape();
-			originalChargeMarker.FilledPolygons.AppendMany(
-				new Polygon(false,
-				0, 0, 1, 1, 1, 0.7F,
-				SIZE, 0, 1, 1, 1, 0.7F,
-				SIZE - 5, 5, 1, 1, 1, 0,
-				5, 5, 1, 1, 1, 0),
-
-				new Polygon(false,
-				SIZE, 0, 1, 1, 1, 0.7F,
-				SIZE, SIZE, 1, 1, 1, 0.7F,
-				SIZE - 5, SIZE - 5, 1, 1, 1, 0,
-				SIZE - 5, 5, 1, 1, 1, 0),
-
-				new Polygon(false,
-				SIZE, SIZE, 1, 1, 1, 0.7F,
-				0, SIZE, 1, 1, 1, 0.7F,
-				5, SIZE - 5, 1, 1, 1, 0,
-				SIZE - 5, SIZE - 5, 1, 1, 1, 0),
-
-				new Polygon(false,
-				0, SIZE, 1, 1, 1, 0.7F,
-				0, 0, 1, 1, 1, 0.7F,
-				5, 5, 1, 1, 1, 0,
-				5, SIZE - 5, 1, 1, 1, 0));
-
-			originalChargeMarker.SetPolygons();
-
 			piecesLayer = new Layer();
 			markerLayer = new Layer();
 			effectsLayer = new Layer();
+
+			MakeChargeMarker();
 
 			chargeMarkers = new List<ColoredShape>();
 			chargeLocations = new List<ChargeData>();
 			gridPieces = new List<List<GridPiece>>(width);
 			Utility.InitializeList<GridPiece>(gridPieces, width, height);
 
-			background = new ColoredShape();
-
-			var brush = new ColoredRectangle(0, 0, SIZE, SIZE, 0.2F, 0.2F, 0.2F, 1);
-			brush.AddOutline(0.7F, 0.7F, 0.7F, 1);
-
-			background.BeginMassUpdate();
-			for (int i = 0; i < width; ++i)
-			{
-				for (int j = 0; j < height; j++)
-				{
-					brush.X = i * (SIZE + PADDING);
-					brush.Y = j * (SIZE + PADDING);
-					brush.DrawToShapeGlobal(background);
-				}
-			}
-			background.EndMassUpdate();
+			MakeBackground();
 
 			AddChild(background);
 			AddChild(piecesLayer);
 			AddChild(markerLayer);
 			AddChild(effectsLayer);
+
+			InteractsWithMouse = true;
 		}
 
 		public void AddPiece(GridPiece piece, int x, int y)
@@ -110,20 +71,7 @@ namespace Electric
 		{
 			chargeLocations.Clear();
 
-			for (int i = 0; i < width; ++i)
-			{
-				for (int j = 0; j < height; ++j)
-				{
-					if (gridPieces[i][j] == null) continue;
-					if (gridPieces[i][j].Type == PieceType.Battery)
-					{
-						//Add new charges where the batteries are. Each battery also carries color information.
-						//The last two integers are the charges last position (so it doesn't bounce back) but 
-						//since the battery is where it spawns, we set it's last coordinates to (-1, -1)
-						chargeLocations.Add(new ChargeData(i, j, (gridPieces[i][j] as Battery).Color, -1, -1));
-					}
-				}
-			}
+			PlaceChargesAtBatteries();
 			UpdateMarkers();
 
 			isReset = true;
@@ -135,35 +83,7 @@ namespace Electric
 		/// <param name="timePart">In seconds</param>
 		public void Step(float timePart)
 		{
-			var newCharges = new List<Tuple<int, int, ChargeColor, int, int>>();
-
-			foreach (var charge in chargeLocations)
-			{
-				var neighbors = GetNeighbors(charge.Item1, charge.Item2);
-				neighbors.RemoveAll(x => x.Item1 == charge.Item4 && x.Item2 == charge.Item5); //Remove the relay this charge originated from to avoid bouncing
-
-				foreach (var neighbor in neighbors)
-				{
-					//In order: New x, new y, color, old x, old y
-					newCharges.Add(new ChargeData(neighbor.Item1, neighbor.Item2, charge.Item3, charge.Item1, charge.Item2));
-				}
-			}
-
-			newCharges.Sort();
-			ChargeData last = null;
-			for (int i = 0; i < newCharges.Count; ++i)
-			{
-				if (last == null || newCharges[i].Item1 != last.Item1 || newCharges[i].Item2 != last.Item2) last = newCharges[i];
-				else
-				{
-					newCharges.Remove(last);
-					--i;
-					newCharges[i] = new ChargeData(last.Item1, last.Item2, last.Item3 + newCharges[i].Item3, -1, -1);
-					last = newCharges[i];
-				}
-			}
-
-			chargeLocations = newCharges;
+			SpreadCharges();
 
 			UpdateMarkers();
 
@@ -215,6 +135,119 @@ namespace Electric
 					chargeMarkers[i].Active = false; ;
 				}
 			}
+		}
+
+		public GridPiece GetPieceAtCoords(float x, float y)
+		{
+			var location = GetPieceLocationAtCoords(x, y);
+			return gridPieces[location.Item1][location.Item2];
+		}
+
+		private void MakeChargeMarker()
+		{
+			originalChargeMarker = new ColoredShape();
+			originalChargeMarker.FilledPolygons.AppendMany(
+				new Polygon(false,
+				0, 0, 1, 1, 1, 0.7F,
+				SIZE, 0, 1, 1, 1, 0.7F,
+				SIZE - 5, 5, 1, 1, 1, 0,
+				5, 5, 1, 1, 1, 0),
+
+				new Polygon(false,
+				SIZE, 0, 1, 1, 1, 0.7F,
+				SIZE, SIZE, 1, 1, 1, 0.7F,
+				SIZE - 5, SIZE - 5, 1, 1, 1, 0,
+				SIZE - 5, 5, 1, 1, 1, 0),
+
+				new Polygon(false,
+				SIZE, SIZE, 1, 1, 1, 0.7F,
+				0, SIZE, 1, 1, 1, 0.7F,
+				5, SIZE - 5, 1, 1, 1, 0,
+				SIZE - 5, SIZE - 5, 1, 1, 1, 0),
+
+				new Polygon(false,
+				0, SIZE, 1, 1, 1, 0.7F,
+				0, 0, 1, 1, 1, 0.7F,
+				5, 5, 1, 1, 1, 0,
+				5, SIZE - 5, 1, 1, 1, 0));
+
+			originalChargeMarker.SetPolygons();
+		}
+
+		private void MakeBackground()
+		{
+			background = new ColoredShape();
+
+			var brush = new ColoredRectangle(0, 0, SIZE, SIZE, 0.2F, 0.2F, 0.2F, 1);
+			brush.AddOutline(0.7F, 0.7F, 0.7F, 1);
+
+			background.BeginMassUpdate();
+			for (int i = 0; i < width; ++i)
+			{
+				for (int j = 0; j < height; j++)
+				{
+					brush.X = i * (SIZE + PADDING);
+					brush.Y = j * (SIZE + PADDING);
+					brush.DrawToShapeGlobal(background);
+				}
+			}
+			background.EndMassUpdate();
+		}
+
+		private void PlaceChargesAtBatteries()
+		{
+			for (int i = 0; i < width; ++i)
+			{
+				for (int j = 0; j < height; ++j)
+				{
+					if (gridPieces[i][j] == null) continue;
+					if (gridPieces[i][j].Type == PieceType.Battery)
+					{
+						//Add new charges where the batteries are. Each battery also carries color information.
+						//The last two integers are the charges last position (so it doesn't bounce back) but 
+						//since the battery is where it spawns, we set it's last coordinates to (-1, -1)
+						chargeLocations.Add(new ChargeData(i, j, (gridPieces[i][j] as Battery).Color, -1, -1));
+					}
+				}
+			}
+		}
+
+		private void SpreadCharges()
+		{
+			var newCharges = new List<Tuple<int, int, ChargeColor, int, int>>();
+
+			foreach (var charge in chargeLocations)
+			{
+				var neighbors = GetNeighbors(charge.Item1, charge.Item2);
+				neighbors.RemoveAll(x => x.Item1 == charge.Item4 && x.Item2 == charge.Item5); //Remove the relay this charge originated from to avoid bouncing
+
+				foreach (var neighbor in neighbors)
+				{
+					//In order: New x, new y, color, old x, old y
+					newCharges.Add(new ChargeData(neighbor.Item1, neighbor.Item2, charge.Item3, charge.Item1, charge.Item2));
+				}
+			}
+
+			newCharges.Sort();
+			ChargeData last = null;
+			for (int i = 0; i < newCharges.Count; ++i)
+			{
+				if (last == null || newCharges[i].Item1 != last.Item1 || newCharges[i].Item2 != last.Item2) last = newCharges[i];
+				else
+				{
+					newCharges.Remove(last);
+					--i;
+					newCharges[i] = new ChargeData(last.Item1, last.Item2, last.Item3 + newCharges[i].Item3, -1, -1);
+					last = newCharges[i];
+				}
+			}
+
+			chargeLocations = newCharges;
+		}
+
+		public Tuple<int, int> GetPieceLocationAtCoords(float x, float y)
+		{
+			return new Tuple<int, int>((int)(x / (SIZE + PADDING)), (int)(y / (SIZE + PADDING)));
 		}
 	}
 }

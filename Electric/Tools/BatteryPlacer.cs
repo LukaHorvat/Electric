@@ -6,10 +6,15 @@ using Electric.GridPieces;
 
 namespace Electric.Tools
 {
-	public class RelayPlacer : Tool
+	public class BatteryPlacer : Tool
 	{
-		public RelayPlacer()
+		public int R, G, B;
+
+		public BatteryPlacer(int r, int g, int b)
 		{
+			R = r;
+			G = g;
+			B = b;
 			Type = ToolType.PlacerTool;
 		}
 
@@ -17,7 +22,7 @@ namespace Electric.Tools
 		{
 			if (piece == null)
 			{
-				grid.AddPiece(new Relay(), gridX, gridY);
+				grid.AddPiece(new Battery(new ChargeColor(R, G, B)), gridX, gridY);
 			}
 		}
 	}

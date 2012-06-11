@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Electric.Tools
 {
-	enum ToolType
+	public enum ToolType
 	{
 		PlacerTool,
 		RemoverTool
@@ -13,6 +13,8 @@ namespace Electric.Tools
 
 	public abstract class Tool
 	{
+		public ToolType Type;
 
+		public abstract void Click(float mouseX, float mouseY, int gridX, int gridY, Grid grid, GridPiece piece);
 	}
 }
